@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.scarletomato.minecraft.forge.entitylimit;
 
 import jline.internal.Log;
 import net.minecraft.entity.Entity;

@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.scarletomato.minecraft.forge.entitylimit;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 public class EventLogger {
 	
-	private static final Logger LOG = LogManager.getLogger(ExampleMod.class);
+	private static final Logger LOG = LogManager.getLogger(EntityLimit.class);
 
 	private List<Class> eventClasses = new LinkedList<Class>();
 
