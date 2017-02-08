@@ -15,6 +15,8 @@ public class ExampleMod
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	new EventLogger().register();
+    	new SpawnEntityListener().register();
         // some example code
         System.out.println("DIRT BLOCK >> "+Blocks.DIRT.getUnlocalizedName());
     }
