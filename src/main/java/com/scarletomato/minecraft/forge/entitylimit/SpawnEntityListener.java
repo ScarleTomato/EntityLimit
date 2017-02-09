@@ -2,39 +2,43 @@ package com.scarletomato.minecraft.forge.entitylimit;
 
 import jline.internal.Log;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.EntityDataManager.DataEntry;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class SpawnEntityListener {
-	private static final String RNT = "\r\n\t";
-
+	
 	@SubscribeEvent
-	public void onEvent(EntityConstructing event) {
-		Entity e = event.getEntity();
-		StringBuilder sb= new StringBuilder("Spawning entity").append(RNT)
-		.append("Entity = ").append(e.toString()).append(RNT)
-		.append("Name = ").append(e.getName()).append(RNT)
-		.append("DisplayName = ").append(e.getDisplayName()).append(RNT)
-		.append("CachedUniqueIdString = ").append(e.getCachedUniqueIdString()).append(RNT)
-		.append("EntityData = ").append(e.getEntityData()).append(RNT)
-		.append("EntityId = ").append(e.getEntityId()).append(RNT)
-		.append("PersistentID = ").append(e.getPersistentID()).append(RNT)
-		.append("CustomNameTag = ").append(e.getCustomNameTag()).append(RNT);
-		
-//		appendDataManager(sb, e.getDataManager());
-		
-		Log.info(sb.toString());
+	public void onEvent(CheckSpawn event) {
+//		if(event.isCancelable() && event.getEntity().worldObj.loadedEntityList.size() > 20) {
+			event.setResult(Result.DENY);
+//		}
 	}
 	
-	void appendDataManager(StringBuilder sb, EntityDataManager edm) {
-		for(DataEntry<?> de : edm.getAll()){
-			sb.append(de.getKey()).append(" = ").append(de.getValue()).append(RNT);
-		}
+	@SubscribeEvent
+	public void onEvent(EntityInteractSpecific event) {
+		EntityPlayer p = event.getEntityPlayer();
+		Entity l = event.getTarget();
+		p.addChatMessage(new TextComponentString(l.getName()));
+		p.addChatMessage(new TextComponentString(l.getClass().toString()));
 	}
+	
+//	@SubscribeEvent
+//	public void onEvent(LivingEvent event) {
+//		if(event.getEntity() instanceof EntityLiving){
+//			Log.info(event.getClass());
+//		}
+//	}
 
 	public void register() {
     	//Most events get posted to this bus

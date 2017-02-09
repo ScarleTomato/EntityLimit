@@ -1,15 +1,25 @@
 package com.scarletomato.minecraft.forge.entitylimit;
 
+import java.util.Map.Entry;
+
+import jline.internal.Log;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 
-@Mod(modid = EntityLimit.MODID, version = EntityLimit.VERSION
-, acceptableRemoteVersions="*")
+@Mod(modid = EntityLimit.MODID
+   , name = "EntityLimit"
+   , version = EntityLimit.VERSION
+   , acceptableRemoteVersions="*")
 public class EntityLimit
 {
-    public static final String MODID = "EntityLimit";
+    public static final String MODID = "entitylimit";
     public static final String VERSION = "1.0";
     
     @EventHandler
@@ -20,4 +30,19 @@ public class EntityLimit
         // some example code
         System.out.println("DIRT BLOCK >> "+Blocks.DIRT.getUnlocalizedName());
     }
+
+//    @EventHandler
+//    public void init(FMLPostInitializationEvent event)
+//    {
+//    	String rnt = "\r\n\t";
+//    	StringBuilder sb = new StringBuilder("registered entities:").append(rnt);
+//    	for(Entry<String, Class<? extends Entity>> e : EntityList.NAME_TO_CLASS.entrySet()){
+//    		sb.append(e.getKey())
+//    		.append(" = ")
+//    		.append(e.getValue())
+//    		.append(rnt);
+//    	}
+//
+//		Log.info(sb.toString());
+//    }
 }
