@@ -14,7 +14,7 @@ public class EventLogger {
 	
 	private static final Logger LOG = LogManager.getLogger(EntityLimit.class);
 
-	private List<Class> eventClasses = new LinkedList<Class>();
+	private List<Class<?>> eventClasses = new LinkedList<>();
 
 	@SubscribeEvent
 	public void onEvent(Event event) {

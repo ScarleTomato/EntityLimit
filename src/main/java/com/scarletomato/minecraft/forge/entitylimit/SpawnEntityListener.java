@@ -1,22 +1,34 @@
 package com.scarletomato.minecraft.forge.entitylimit;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import jline.internal.Log;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 
 public class SpawnEntityListener {
+	private final EntityLimit mod;
 	/**
 	 * How many old averages to remember
 	 */
@@ -26,34 +38,45 @@ public class SpawnEntityListener {
 	 */
 	private static final int COUNT = 50;
 	
+	int denyCount = 1000;
+	
+	int denys = 0;
+	
 	long startTime = System.currentTimeMillis();
 	int ticks = 0;
-	double avgTps;
 	
-	List<World> loadedWorlds = new LinkedList<>();
+	public SpawnEntityListener(EntityLimit mod) {
+		this.mod = mod;
+	}
 	
 	@SubscribeEvent
 	public void onCheckSpawn(CheckSpawn event) {
-//		if(event.isCancelable() && event.getEntity().worldObj.loadedEntityList.size() > 20) {
+		if(event.getWorld().loadedEntityList.size() > mod.entityLimit) {
 			event.setResult(Result.DENY);
-//		}
+			if(denys++ > denyCount){
+				cleanup(event.getWorld());
+			}
+			
+		}
 	}
-	
-	@SubscribeEvent
-	public void onPlayerRightClick(EntityInteractSpecific event) {
-		EntityPlayer p = event.getEntityPlayer();
-		Entity l = event.getTarget();
-		p.addChatMessage(new TextComponentString(l.getName()));
-		p.addChatMessage(new TextComponentString(l.getClass().toString()));
+
+	private void cleanup(World world) {
+		for(Entity e : world.loadedEntityList) {
+			if(e instanceof EntityMob && null == world.getClosestPlayerToEntity(e, 50)) {
+//				e.setDropItemsWhenDead(false);
+//				e.setDead();
+				world.removeEntity(e);
+			}
+		}
 	}
-	
+
 	@SubscribeEvent
 	public void onServerTick(ServerTickEvent event) {
 		ticks++;
 		if(ticks >= COUNT) {
 			//running avg = (nowCalc + oldAvg*weight)/(weight+1)
-			avgTps = ((ticks*1000.0)/(System.currentTimeMillis() - startTime) + avgTps*WEIGHT)/(WEIGHT+1);
-			Log.info("current avg = " + avgTps);
+			mod.avgTps = ((ticks*1000.0)/(System.currentTimeMillis() - startTime) + mod.avgTps*WEIGHT)/(WEIGHT+1);
+//			Log.info("current avg = " + avgTps);
 			
 			// restart count
 			startTime = System.currentTimeMillis();
@@ -63,12 +86,12 @@ public class SpawnEntityListener {
 
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event) {
-		loadedWorlds.add(event.getWorld());
+		mod.loadedWorlds.add(event.getWorld());
 	}
 
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload event) {
-		loadedWorlds.remove(event.getWorld());
+		mod.loadedWorlds.remove(event.getWorld());
 	}
 	
 //	public static void main(String[] args) {
